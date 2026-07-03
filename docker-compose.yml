@@ -1,0 +1,37 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: yapApp-db
+    ports:
+      - 9000:27017
+    volumes:
+      - yapApp-db:/data/db
+
+  backend:
+    build: ./server
+    container_name: server
+    ports:
+      - 6969:6969
+    depends_on:
+      - mongo
+    volumes:
+      - ./server:/app
+      - yapApp_node_modules:/app/node_modules
+    command: "pnpm run dev"
+
+  frontend:
+    build: ./client
+    container_name: client
+    ports:
+      - 5173:5173
+    depends_on:
+      - backend
+    volumes:
+      - ./client:/app
+      - yapApp_node_modules_frontend:/app/node_modules
+    command: "pnpm run dev"
+
+volumes:
+  yapApp-db:
+  yapApp_node_modules:
+  yapApp_node_modules_frontend:
