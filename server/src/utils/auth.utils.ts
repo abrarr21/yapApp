@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import jwt, { type JwtPayload } from 'jsonwebtoken';
 import env from '../config/config.js';
 import ApiError from './app.error.js';
 import { StatusCodes } from 'http-status-codes';
@@ -23,7 +23,7 @@ export const generateRefreshToken = (user: HydratedDocument<IUser>) => {
 
 export const verifyAccessToken = (token: string) => {
   try {
-    const decode = jwt.verify(token, env.JWT_ACCESS_TOKEN_SECRET);
+    const decode = jwt.verify(token, env.JWT_ACCESS_TOKEN_SECRET) as JwtPayload;
     return decode;
   } catch (error) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid or expired access token');
@@ -32,7 +32,7 @@ export const verifyAccessToken = (token: string) => {
 
 export const verifyRefreshToken = (token: string) => {
   try {
-    const decode = jwt.verify(token, env.JWT_REFRESH_TOKEN_SECRET);
+    const decode = jwt.verify(token, env.JWT_REFRESH_TOKEN_SECRET) as JwtPayload;
     return decode;
   } catch (error) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid or expired refresh token');

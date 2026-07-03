@@ -11,10 +11,15 @@ class UserDao {
   }
 
   // retrieve user by email or username
-  async getUserByEmailOrUsername({ username, email }: Pick<IUser, 'email' | 'username'>) {
+  async getUserByEmailOrUsername({ username, email }: Partial<Pick<IUser, 'email' | 'username'>>) {
     return await userModel.findOne({
-      $or: [{ username }, { email }],
+      $or: [...(email ? [{ email }] : []), ...(username ? [{ username }] : [])],
     });
+  }
+
+  // retrieve user by userId
+  async getUserByUserId(userId) {
+    return await userModel.findById(userId);
   }
 }
 
