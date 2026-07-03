@@ -8,13 +8,21 @@ class SessionDao {
   }
 
   // retrieve a session of a user by userId
-  async getSessionByUserId(userId: Pick<ISession, 'userId'>) {
-    return await sessionModel.findOne(userId);
+  async getSessionByUserId(userId: Types.ObjectId) {
+    return await sessionModel.findOne({ userId });
   }
 
   // update refresh token of a session by userId
   async updateSessionByUserId(userId: Types.ObjectId, refreshToken: string) {
-    return await sessionModel.findOneAndUpdate({ userId }, { refreshToken }, { new: true });
+    let session = await sessionModel.findOne({ userId });
+
+    if (!session) {
+      // Fallback: if session doesn't exist, create it (triggers pre-save hook)
+      return await sessionModel.create({ userId, refreshToken });
+    }
+    // Updating this property and calling .save() WILL trigger the pre('save') hook!
+    session.refreshToken = refreshToken;
+    return await session.save();
   }
 
   // delete a session by provided userId

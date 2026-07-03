@@ -6,7 +6,6 @@ import * as authUtils from '../utils/auth.utils.js';
 import sessionDao from '../dao/session.dao.js';
 import env from '../config/config.js';
 import ApiError from '../utils/app.error.js';
-import sessionModel from '../models/session.model.js';
 import type { AuthenticatedRequest } from '../types/index.js';
 
 class AuthController {
@@ -44,6 +43,7 @@ class AuthController {
     return sendResponse(res, StatusCodes.CREATED, 'user registered successfully', responseUser);
   }
 
+  // login user
   async loginUser(req: Request, res: Response) {
     const { email, password } = req.body;
 
@@ -81,6 +81,7 @@ class AuthController {
     return sendResponse(res, StatusCodes.OK, 'user logged in successfully', responseUser);
   }
 
+  // logout user
   async logoutUser(req: Request, res: Response) {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
@@ -104,6 +105,7 @@ class AuthController {
     }
   }
 
+  // rotate refresh token
   async refreshTokenController(req: Request, res: Response) {
     const refreshToken = req.cookies.refreshToken;
 
@@ -125,8 +127,13 @@ class AuthController {
         throw new ApiError(StatusCodes.BAD_REQUEST, 'invalid refresh token');
       }
 
-      const newAccessToken = authUtils.generateAccessToken(decoded.userId);
-      const newRefreshToken = authUtils.generateRefreshToken(decoded.userId);
+      const user = await userDao.getUserByUserId(decoded.userId);
+      if (!user) {
+        throw new ApiError(StatusCodes.NOT_FOUND, 'user not found');
+      }
+
+      const newAccessToken = authUtils.generateAccessToken(user);
+      const newRefreshToken = authUtils.generateRefreshToken(user);
 
       await sessionDao.updateSessionByUserId(decoded.userId, newRefreshToken);
 
@@ -143,6 +150,7 @@ class AuthController {
     }
   }
 
+  // retrieve current user
   async getMe(req: AuthenticatedRequest, res: Response) {
     const userId = req.user?.id;
 

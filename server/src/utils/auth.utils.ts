@@ -6,9 +6,13 @@ import type { HydratedDocument } from 'mongoose';
 import type { IUser } from '../models/user.model.js';
 
 export const generateAccessToken = (user: HydratedDocument<IUser>) => {
-  const accessToken = jwt.sign({ userId: user._id }, env.JWT_ACCESS_TOKEN_SECRET, {
-    expiresIn: '15m',
-  });
+  const accessToken = jwt.sign(
+    { id: user._id.toString(), email: user.email },
+    env.JWT_ACCESS_TOKEN_SECRET,
+    {
+      expiresIn: '15m',
+    },
+  );
 
   return accessToken;
 };

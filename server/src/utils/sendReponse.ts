@@ -1,7 +1,7 @@
 import type { Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-type responseBody = {
+type ResponseBody = {
   success: boolean;
   data?: unknown;
   message?: string;
@@ -9,11 +9,11 @@ type responseBody = {
 
 const sendResponse = <T = null>(
   res: Response,
-  statusCode: number,
-  message: string,
+  statusCode: number = StatusCodes.OK,
+  message?: string,
   data: T | null = null,
 ) => {
-  const responseBody: responseBody = {
+  const responseBody: ResponseBody = {
     success: true,
   };
 
@@ -22,7 +22,7 @@ const sendResponse = <T = null>(
     responseBody.data = data;
   }
 
-  return res.status(statusCode || StatusCodes.OK).json(responseBody);
+  return res.status(statusCode).json(responseBody);
 };
 
 export default sendResponse;
