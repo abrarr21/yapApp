@@ -8,7 +8,8 @@ const envSchema = z.object({
   NODE_ENV: z.string(),
   LOGGER_LEVEL: z.string(),
   PINO_LOG_LEVEL: z.string(),
-  JWT_SECRET: z.string(),
+  JWT_REFRESH_TOKEN_SECRET: z.string(),
+  JWT_ACCESS_TOKEN_SECRET: z.string(),
   ACCESS_TOKEN_EXPIRY: z.string(),
   REFRESH_TOKEN_EXPIRY: z.string(),
 });
