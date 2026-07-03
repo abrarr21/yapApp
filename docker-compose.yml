@@ -10,6 +10,8 @@ services:
   backend:
     build: ./server
     container_name: server
+    environment:
+      CI: "true"
     ports:
       - 6969:6969
     depends_on:
@@ -22,6 +24,8 @@ services:
   frontend:
     build: ./client
     container_name: client
+    environment:
+      CI: "true"
     ports:
       - 5173:5173
     depends_on:
