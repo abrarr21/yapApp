@@ -7,6 +7,7 @@ import sessionDao from '../dao/session.dao.js';
 import env from '../config/config.js';
 import ApiError from '../utils/app.error.js';
 import type { AuthenticatedRequest } from '../types/index.js';
+import { getRedisClient } from '../config/cache.js';
 
 class AuthController {
   // register user
@@ -152,12 +153,34 @@ class AuthController {
 
   // retrieve current user
   async getMe(req: AuthenticatedRequest, res: Response) {
+    const redisClient = getRedisClient();
+
     const userId = req.user?.id;
+
+    const isUserInCache = await redisClient.get(`user:${userId}`);
+
+    if (isUserInCache) {
+      const user = JSON.parse(isUserInCache);
+      const responseUser = {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+      };
+      return sendResponse(
+        res,
+        StatusCodes.OK,
+        'current user retrieved successfully from cache',
+        responseUser,
+      );
+    }
 
     const user = await userDao.getUserByUserId(userId);
     if (!user) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'user not found');
     }
+
+    // store in redis
+    await redisClient.set(`user:${userId}`, JSON.stringify(user), 'EX', 900);
 
     const responseUser = {
       id: user._id,
