@@ -12,6 +12,7 @@ const envSchema = z.object({
   JWT_ACCESS_TOKEN_SECRET: z.string(),
   ACCESS_TOKEN_EXPIRY: z.string(),
   REFRESH_TOKEN_EXPIRY: z.string(),
+  REDIS_URI: z.string(),
 });
 
 const env = envSchema.safeParse(process.env);

@@ -35,7 +35,23 @@ services:
       - yapApp_node_modules_frontend:/app/node_modules
     command: "pnpm run dev"
 
+  redis:
+      image: redis:7-alpine
+      container_name: redis-cache
+      restart: unless-stopped
+      ports:
+        - "6379:6379"
+      volumes:
+        - yapApp_redis_data:/data
+      command: redis-server --requirepass MySecurePassword123 --appendonly yes
+      healthcheck:
+        test: ["CMD", "redis-cli", "-a", "MySecurePassword123", "ping"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+
 volumes:
   yapApp-db:
   yapApp_node_modules:
   yapApp_node_modules_frontend:
+  yapApp_redis_data:
