@@ -18,8 +18,17 @@ class UserDao {
   }
 
   // retrieve user by userId
-  async getUserByUserId(userId) {
+  async getUserByUserId(userId: string) {
     return await userModel.findById(userId);
+  }
+
+  // search user by provided username
+  async searchUserByUsername(query: string) {
+    return await userModel
+      .find({
+        username: { $regex: query, $options: 'i' },
+      })
+      .select('username email');
   }
 }
 
